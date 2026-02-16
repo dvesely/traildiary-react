@@ -1,0 +1,10 @@
+{
+  "name": "traildiary",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @traildiary/web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
+  }
+}
