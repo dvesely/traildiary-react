@@ -1,10 +1,30 @@
 import type { TrackPoint } from '../domain/trackpoint.js'
+import type { TrackStats } from '../domain/track-stats.js'
 import type { SourceFormat } from '../domain/trail.js'
 
 export interface ParsedActivity {
   name: string
   sourceFormat: SourceFormat
   points: TrackPoint[]
+}
+
+export interface TrailDto {
+  id: string
+  name: string
+}
+
+export interface TrailDayDto {
+  id: string
+  name: string
+  dayNumber: number
+}
+
+export interface ActivityDto {
+  id: string
+  name: string
+  sourceFormat: SourceFormat
+  stats: TrackStats
+  sortOrder: number
 }
 
 export interface FileParser {
@@ -14,18 +34,18 @@ export interface FileParser {
 
 export interface TrailRepository {
   createTrail(name: string): Promise<string>
-  getTrail(id: string): Promise<{ id: string; name: string } | null>
-  listTrails(): Promise<Array<{ id: string; name: string }>>
+  getTrail(id: string): Promise<TrailDto | null>
+  listTrails(): Promise<TrailDto[]>
 }
 
 export interface TrailDayRepository {
   createTrailDay(trailId: string, name: string, dayNumber: number): Promise<string>
-  getTrailDays(trailId: string): Promise<Array<{ id: string; name: string; dayNumber: number }>>
+  getTrailDays(trailId: string): Promise<TrailDayDto[]>
 }
 
 export interface ActivityRepository {
-  createActivity(trailDayId: string, name: string, sourceFormat: SourceFormat, stats: import('../domain/track-stats.js').TrackStats, sortOrder: number): Promise<string>
-  getActivities(trailDayId: string): Promise<Array<{ id: string; name: string; sourceFormat: SourceFormat; stats: import('../domain/track-stats.js').TrackStats; sortOrder: number }>>
+  createActivity(trailDayId: string, name: string, sourceFormat: SourceFormat, stats: TrackStats, sortOrder: number): Promise<string>
+  getActivities(trailDayId: string): Promise<ActivityDto[]>
 }
 
 export interface TrackpointRepository {
