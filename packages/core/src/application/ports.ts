@@ -1,5 +1,4 @@
 import type { TrackPoint } from '../domain/trackpoint.js'
-import type { TrackStats } from '../domain/track-stats.js'
 import type { SourceFormat } from '../domain/trail.js'
 
 export interface ParsedActivity {
@@ -8,48 +7,10 @@ export interface ParsedActivity {
   points: TrackPoint[]
 }
 
-export interface TrailDto {
-  id: string
-  name: string
-}
-
-export interface TrailDayDto {
-  id: string
-  name: string
-  dayNumber: number
-}
-
-export interface ActivityDto {
-  id: string
-  name: string
-  sourceFormat: SourceFormat
-  stats: TrackStats
-  sortOrder: number
-}
-
 export interface FileParser {
   canParse(fileName: string): boolean
   parse(data: ArrayBuffer, fileName: string): Promise<ParsedActivity[]>
 }
 
-export interface TrailRepository {
-  createTrail(name: string): Promise<string>
-  getTrail(id: string): Promise<TrailDto | null>
-  listTrails(): Promise<TrailDto[]>
-}
-
-export interface TrailDayRepository {
-  createTrailDay(trailId: string, name: string, dayNumber: number): Promise<string>
-  getTrailDays(trailId: string): Promise<TrailDayDto[]>
-}
-
-export interface ActivityRepository {
-  createActivity(trailDayId: string, name: string, sourceFormat: SourceFormat, stats: TrackStats, sortOrder: number): Promise<string>
-  getActivities(trailDayId: string): Promise<ActivityDto[]>
-}
-
-export interface TrackpointRepository {
-  insertTrackpoints(activityId: string, points: TrackPoint[]): Promise<void>
-  getTrackpoints(activityId: string): Promise<TrackPoint[]>
-  getTrackpointsSampled(activityId: string, sampleRate: number): Promise<TrackPoint[]>
-}
+export type { TrailDto, TrailDayDto, ActivityDto } from './dtos.js'
+export type { TrailRepository, TrailDayRepository, ActivityRepository, TrackpointRepository } from './repositories.js'
