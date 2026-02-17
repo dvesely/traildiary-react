@@ -10,6 +10,8 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
+    "@types/jsdom": "^27.0.0",
+    "jsdom": "^28.1.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   }
