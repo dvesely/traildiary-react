@@ -12,5 +12,5 @@ export interface FileParser {
   parse(data: ArrayBuffer, fileName: string): Promise<ParsedActivity[]>
 }
 
-export type { Trail, TrailDay, Activity } from './models.js'
+export type { TrailDto, TrailDayDto, ActivityDto } from './models.js'
 export type { TrailRepository, TrailDayRepository, ActivityRepository, TrackpointRepository } from './repositories.js'
