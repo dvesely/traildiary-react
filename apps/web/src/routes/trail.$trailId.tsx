@@ -36,8 +36,8 @@ function TrailPage() {
         <div className="flex-1">
           <MapView days={trail.days} selectedDayId={selectedDayId} />
         </div>
-        <div className="h-48 border-t border-gray-800">
-          <ElevationChart points={chartPoints} />
+        <div className="border-t border-gray-800 p-2">
+          <ElevationChart points={chartPoints} height={176} />
         </div>
         <div className="border-t border-gray-800">
           <StatsPanel stats={currentStats} label={currentLabel} />

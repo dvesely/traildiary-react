@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.3.15",
     "@tanstack/react-router": "^1.160.2",
     "@tanstack/router-devtools": "^1.160.2",
     "@traildiary/core": "workspace:*",

@@ -11,7 +11,7 @@ export class FitParser implements FileParser {
     const parser = new FitFileParser({ speedUnit: 'km/h', lengthUnit: 'km' })
 
     const fitData = await new Promise<Record<string, unknown>>((resolve, reject) => {
-      parser.parse(Buffer.from(data), (error: unknown, data: Record<string, unknown>) => {
+      parser.parse(data as unknown as Buffer, (error: unknown, data: Record<string, unknown>) => {
         if (error) reject(error)
         else resolve(data)
       })

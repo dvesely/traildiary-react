@@ -5,4 +5,16 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 
 export default defineConfig({
   plugins: [TanStackRouterVite(), react(), tailwindcss()],
+  build: {
+    target: 'es2022',
+  },
+  esbuild: {
+    target: 'es2022',
+  },
+  optimizeDeps: {
+    exclude: ['@electric-sql/pglite'],
+    esbuildOptions: {
+      target: 'es2022',
+    },
+  },
 })

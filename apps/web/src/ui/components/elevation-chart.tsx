@@ -3,6 +3,7 @@ import { haversineDistance, type TrackPoint } from '@traildiary/core'
 
 interface ElevationChartProps {
   points: TrackPoint[]
+  height?: number
 }
 
 interface ChartDataPoint {
@@ -24,7 +25,7 @@ function buildChartData(points: TrackPoint[]): ChartDataPoint[] {
   return data
 }
 
-export function ElevationChart({ points }: ElevationChartProps) {
+export function ElevationChart({ points, height = 176 }: ElevationChartProps) {
   const data = buildChartData(points)
 
   if (data.length === 0) {
@@ -32,7 +33,7 @@ export function ElevationChart({ points }: ElevationChartProps) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
         <defs>
           <linearGradient id="elevGradient" x1="0" y1="0" x2="0" y2="1">
