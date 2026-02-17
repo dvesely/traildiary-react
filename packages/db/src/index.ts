@@ -1,1 +1,4 @@
-export {}
+export { getPgliteClient, runMigrations, resetClient } from './infrastructure/pglite-client.js'
+export { PgliteTrailRepository } from './infrastructure/trail-repository.js'
+export { PgliteTrailDayRepository, PgliteActivityRepository } from './infrastructure/activity-repository.js'
+export { PgliteTrackpointRepository } from './infrastructure/trackpoint-repository.js'
