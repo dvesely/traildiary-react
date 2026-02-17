@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTrail } from '../application/hooks/use-trail.js'
+import { useAddActivity } from '../application/hooks/use-add-activity.js'
 import { useElevationData } from '../application/hooks/use-activity.js'
 import { MapView } from '../ui/components/map-view.js'
 import { DaySidebar } from '../ui/components/day-sidebar.js'
@@ -13,9 +14,15 @@ export const Route = createFileRoute('/trail/$trailId')({
 
 function TrailPage() {
   const { trailId } = Route.useParams()
-  const { trail, loading } = useTrail(trailId)
+  const { trail, loading, refresh } = useTrail(trailId)
+  const { addFiles } = useAddActivity(trailId)
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null)
   const { chartPoints } = useElevationData(trail, selectedDayId)
+
+  async function handleAddFiles(files: File[]) {
+    await addFiles(files)
+    refresh()
+  }
 
   if (loading || !trail) {
     return (
@@ -31,7 +38,7 @@ function TrailPage() {
 
   return (
     <div className="flex h-full">
-      <DaySidebar trail={trail} selectedDayId={selectedDayId} onSelectDay={setSelectedDayId} />
+      <DaySidebar trail={trail} selectedDayId={selectedDayId} onSelectDay={setSelectedDayId} onAddFiles={handleAddFiles} />
       <div className="flex-1 flex flex-col">
         <div className="flex-1">
           <MapView days={trail.days} selectedDayId={selectedDayId} />

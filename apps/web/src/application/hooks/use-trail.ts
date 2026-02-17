@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { simplifyTrack, aggregateStats, type TrackPoint, type TrackStats } from '@traildiary/core'
 import { useDb } from '../providers/db-provider.js'
 import { createRepositories } from '../../infrastructure/di.js'
@@ -27,6 +27,11 @@ export function useTrail(trailId: string) {
   const db = useDb()
   const [trail, setTrail] = useState<TrailView | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const refresh = useCallback(() => {
+    setRefreshKey((k) => k + 1)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -76,7 +81,7 @@ export function useTrail(trailId: string) {
 
     load()
     return () => { cancelled = true }
-  }, [trailId, db])
+  }, [trailId, db, refreshKey])
 
-  return { trail, loading }
+  return { trail, loading, refresh }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { GpxParser, FitParser, computeStats } from '@traildiary/core'
+import { GpxParser, FitParser, computeStats, validateActivityTimestamps } from '@traildiary/core'
 import { useDb } from '../providers/db-provider.js'
 import { createRepositories } from '../../infrastructure/di.js'
 
@@ -37,13 +37,21 @@ export function useImport() {
 
       const buffer = await file.arrayBuffer()
       const activities = await parser.parse(buffer, file.name)
+      const validActivities = activities.filter((a) => validateActivityTimestamps(a.points))
+
+      if (validActivities.length < activities.length) {
+        const skipped = activities.length - validActivities.length
+        setProgress({ status: 'parsing', current: i + 1, total: sorted.length, message: `${file.name}: skipped ${skipped} activity(ies) without timestamps` })
+      }
+
+      if (validActivities.length === 0) continue
 
       setProgress({ status: 'saving', current: i + 1, total: sorted.length, message: `Saving ${file.name}` })
 
       const dayId = await repos.trailDays.createTrailDay(trailId, file.name.replace(/\.(gpx|fit)$/i, ''), i + 1)
 
-      for (let j = 0; j < activities.length; j++) {
-        const activity = activities[j]
+      for (let j = 0; j < validActivities.length; j++) {
+        const activity = validActivities[j]
         const stats = computeStats(activity.points)
         const activityId = await repos.activities.createActivity(
           dayId, activity.name, activity.sourceFormat, stats, j + 1

@@ -1,9 +1,11 @@
+import { useRef } from 'react'
 import type { TrailView } from '../../application/hooks/use-trail.js'
 
 interface DaySidebarProps {
   trail: TrailView
   selectedDayId: string | null
   onSelectDay: (dayId: string | null) => void
+  onAddFiles?: (files: File[]) => void
 }
 
 function formatDistance(km: number): string {
@@ -14,7 +16,17 @@ function formatElevation(m: number): string {
   return `${Math.round(m)} m`
 }
 
-export function DaySidebar({ trail, selectedDayId, onSelectDay }: DaySidebarProps) {
+export function DaySidebar({ trail, selectedDayId, onSelectDay, onAddFiles }: DaySidebarProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files
+    if (files && files.length > 0 && onAddFiles) {
+      onAddFiles(Array.from(files))
+    }
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   return (
     <div className="w-64 h-full overflow-y-auto border-r border-gray-800 flex flex-col">
       <button
@@ -28,6 +40,25 @@ export function DaySidebar({ trail, selectedDayId, onSelectDay }: DaySidebarProp
           {formatDistance(trail.stats.distance)} | +{formatElevation(trail.stats.elevationGain)}
         </div>
       </button>
+
+      {onAddFiles && (
+        <>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".gpx,.fit"
+            multiple
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="m-2 px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+          >
+            + Add Activity
+          </button>
+        </>
+      )}
 
       {trail.days.map((day) => (
         <button
