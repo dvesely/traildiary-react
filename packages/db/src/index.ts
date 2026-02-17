@@ -2,3 +2,4 @@ export { getPgliteClient, runMigrations, resetClient } from './infrastructure/pg
 export { PgliteTrailRepository } from './infrastructure/trail-repository.js'
 export { PgliteTrailDayRepository, PgliteActivityRepository } from './infrastructure/activity-repository.js'
 export { PgliteTrackpointRepository } from './infrastructure/trackpoint-repository.js'
+export { uuidv7 } from './infrastructure/uuidv7.js'

@@ -1,12 +1,12 @@
 CREATE TABLE trails (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY NOT NULL,
   name TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE trail_days (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY NOT NULL,
   trail_id UUID REFERENCES trails(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   day_number INTEGER NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE trail_days (
 );
 
 CREATE TABLE activities (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY NOT NULL,
   trail_day_id UUID REFERENCES trail_days(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   source_format TEXT NOT NULL,

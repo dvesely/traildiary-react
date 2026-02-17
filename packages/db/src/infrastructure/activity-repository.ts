@@ -1,15 +1,17 @@
 import type { PGlite } from '@electric-sql/pglite'
 import type { ActivityRepository, TrailDayRepository, TrailDayDto, ActivityDto, SourceFormat, TrackStats } from '@traildiary/core'
+import { uuidv7 } from './uuidv7.js'
 
 export class PgliteTrailDayRepository implements TrailDayRepository {
   constructor(private db: PGlite) {}
 
   async createTrailDay(trailId: string, name: string, dayNumber: number): Promise<string> {
-    const result = await this.db.query<{ id: string }>(
-      'INSERT INTO trail_days (trail_id, name, day_number) VALUES ($1, $2, $3) RETURNING id',
-      [trailId, name, dayNumber]
+    const id = uuidv7()
+    await this.db.query(
+      'INSERT INTO trail_days (id, trail_id, name, day_number) VALUES ($1, $2, $3, $4)',
+      [id, trailId, name, dayNumber]
     )
-    return result.rows[0].id
+    return id
   }
 
   async getTrailDays(trailId: string): Promise<TrailDayDto[]> {
@@ -31,13 +33,13 @@ export class PgliteActivityRepository implements ActivityRepository {
     stats: TrackStats,
     sortOrder: number,
   ): Promise<string> {
-    const result = await this.db.query<{ id: string }>(
-      `INSERT INTO activities (trail_day_id, name, source_format, distance_km, elevation_gain_m, elevation_loss_m, duration_ms, moving_time_ms, start_time, end_time, sort_order)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, to_timestamp($9::double precision / 1000), to_timestamp($10::double precision / 1000), $11)
-       RETURNING id`,
-      [trailDayId, name, sourceFormat, stats.distance, stats.elevationGain, stats.elevationLoss, stats.duration, stats.movingTime, stats.startTime, stats.endTime, sortOrder]
+    const id = uuidv7()
+    await this.db.query(
+      `INSERT INTO activities (id, trail_day_id, name, source_format, distance_km, elevation_gain_m, elevation_loss_m, duration_ms, moving_time_ms, start_time, end_time, sort_order)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, to_timestamp($10::double precision / 1000), to_timestamp($11::double precision / 1000), $12)`,
+      [id, trailDayId, name, sourceFormat, stats.distance, stats.elevationGain, stats.elevationLoss, stats.duration, stats.movingTime, stats.startTime, stats.endTime, sortOrder]
     )
-    return result.rows[0].id
+    return id
   }
 
   async getActivities(trailDayId: string): Promise<ActivityDto[]> {

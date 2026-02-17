@@ -1,15 +1,17 @@
 import type { PGlite } from '@electric-sql/pglite'
 import type { TrailRepository, TrailDto } from '@traildiary/core'
+import { uuidv7 } from './uuidv7.js'
 
 export class PgliteTrailRepository implements TrailRepository {
   constructor(private db: PGlite) {}
 
   async createTrail(name: string): Promise<string> {
-    const result = await this.db.query<{ id: string }>(
-      'INSERT INTO trails (name) VALUES ($1) RETURNING id',
-      [name]
+    const id = uuidv7()
+    await this.db.query(
+      'INSERT INTO trails (id, name) VALUES ($1, $2)',
+      [id, name]
     )
-    return result.rows[0].id
+    return id
   }
 
   async getTrail(id: string): Promise<TrailDto | null> {
