@@ -14,6 +14,10 @@ export class PgliteTrailDayRepository implements TrailDayRepository {
     return id
   }
 
+  async deleteTrailDay(id: string): Promise<void> {
+    await this.db.query('DELETE FROM trail_days WHERE id = $1', [id])
+  }
+
   async getTrailDays(trailId: string): Promise<TrailDayDto[]> {
     const result = await this.db.query<{ id: string; name: string; day_number: number }>(
       'SELECT id, name, day_number FROM trail_days WHERE trail_id = $1 ORDER BY day_number',

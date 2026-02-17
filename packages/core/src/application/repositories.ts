@@ -12,6 +12,7 @@ export interface TrailRepository {
 export interface TrailDayRepository {
   createTrailDay(trailId: string, name: string, dayNumber: number): Promise<string>
   getTrailDays(trailId: string): Promise<TrailDayDto[]>
+  deleteTrailDay(id: string): Promise<void>
 }
 
 export interface ActivityRepository {

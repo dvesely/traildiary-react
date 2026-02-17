@@ -6,6 +6,7 @@ interface DaySidebarProps {
   selectedDayId: string | null
   onSelectDay: (dayId: string | null) => void
   onAddFiles?: (files: File[]) => void
+  onRemoveDay?: (dayId: string) => void
 }
 
 function formatDistance(km: number): string {
@@ -16,7 +17,7 @@ function formatElevation(m: number): string {
   return `${Math.round(m)} m`
 }
 
-export function DaySidebar({ trail, selectedDayId, onSelectDay, onAddFiles }: DaySidebarProps) {
+export function DaySidebar({ trail, selectedDayId, onSelectDay, onAddFiles, onRemoveDay }: DaySidebarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -61,18 +62,32 @@ export function DaySidebar({ trail, selectedDayId, onSelectDay, onAddFiles }: Da
       )}
 
       {trail.days.map((day) => (
-        <button
+        <div
           key={day.id}
           onClick={() => onSelectDay(day.id)}
-          className={`p-3 text-left border-b border-gray-800 transition-colors ${
+          className={`p-3 text-left border-b border-gray-800 transition-colors cursor-pointer flex items-start justify-between ${
             selectedDayId === day.id ? 'bg-gray-800' : 'hover:bg-gray-900'
           }`}
         >
-          <div className="font-medium text-sm">{day.name}</div>
-          <div className="text-xs text-gray-400">
-            {formatDistance(day.stats.distance)} | +{formatElevation(day.stats.elevationGain)}
+          <div>
+            <div className="font-medium text-sm">{day.name}</div>
+            <div className="text-xs text-gray-400">
+              {formatDistance(day.stats.distance)} | +{formatElevation(day.stats.elevationGain)}
+            </div>
           </div>
-        </button>
+          {onRemoveDay && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onRemoveDay(day.id)
+              }}
+              className="ml-2 p-1 text-gray-500 hover:text-red-400 transition-colors"
+              title="Remove day"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       ))}
     </div>
   )

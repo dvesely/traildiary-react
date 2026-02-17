@@ -7,6 +7,7 @@ import { MapView } from '../ui/components/map-view.js'
 import { DaySidebar } from '../ui/components/day-sidebar.js'
 import { ElevationChart } from '../ui/components/elevation-chart.js'
 import { StatsPanel } from '../ui/components/stats-panel.js'
+import { useRemoveDay } from '../application/hooks/use-remove-day.js'
 
 export const Route = createFileRoute('/trail/$trailId')({
   component: TrailPage,
@@ -16,12 +17,18 @@ function TrailPage() {
   const { trailId } = Route.useParams()
   const { trail, loading, refresh } = useTrail(trailId)
   const { addFiles } = useAddActivity(trailId)
+  const { removeDay } = useRemoveDay()
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null)
   const { chartPoints } = useElevationData(trail, selectedDayId)
 
   async function handleAddFiles(files: File[]) {
     await addFiles(files)
     refresh()
+  }
+
+  async function handleRemoveDay(dayId: string) {
+    await removeDay(dayId)
+    refresh() 
   }
 
   if (loading || !trail) {
@@ -38,7 +45,7 @@ function TrailPage() {
 
   return (
     <div className="flex h-full">
-      <DaySidebar trail={trail} selectedDayId={selectedDayId} onSelectDay={setSelectedDayId} onAddFiles={handleAddFiles} />
+      <DaySidebar trail={trail} selectedDayId={selectedDayId} onSelectDay={setSelectedDayId} onAddFiles={handleAddFiles} onRemoveDay={handleRemoveDay} />
       <div className="flex-1 flex flex-col">
         <div className="flex-1">
           <MapView days={trail.days} selectedDayId={selectedDayId} />
