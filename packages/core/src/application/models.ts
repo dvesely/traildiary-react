@@ -1,18 +1,18 @@
 import type { TrackStats } from '../domain/track-stats.js'
 import type { SourceFormat } from '../domain/trail.js'
 
-export interface TrailDto {
+export interface Trail {
   id: string
   name: string
 }
 
-export interface TrailDayDto {
+export interface TrailDay {
   id: string
   name: string
   dayNumber: number
 }
 
-export interface ActivityDto {
+export interface Activity {
   id: string
   name: string
   sourceFormat: SourceFormat
