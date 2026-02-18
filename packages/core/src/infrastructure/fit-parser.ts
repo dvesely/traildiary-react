@@ -29,8 +29,6 @@ export class FitParser implements FileParser {
         lon: record.position_long as number,
         elevation: (record.enhanced_altitude ?? record.altitude ?? 0) as number,
         timestamp: record.timestamp ? new Date(record.timestamp as string).getTime() : 0,
-        heartRate: (record.heart_rate as number) ?? undefined,
-        cadence: (record.cadence as number) ?? undefined,
       })
     }
 

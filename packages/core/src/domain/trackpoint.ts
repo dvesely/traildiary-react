@@ -3,6 +3,4 @@ export interface TrackPoint {
   lon: number
   elevation: number
   timestamp: number
-  heartRate?: number
-  cadence?: number
 }

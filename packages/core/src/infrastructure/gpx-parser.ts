@@ -37,17 +37,7 @@ export class GpxParser implements FileParser {
         const timeEl = pt.getElementsByTagName('time')[0]
         const timestamp = timeEl ? new Date(timeEl.textContent ?? '').getTime() : 0
 
-        const hrEl = pt.getElementsByTagName('gpxtpx:hr')[0] ?? pt.getElementsByTagName('hr')[0]
-        const cadEl = pt.getElementsByTagName('gpxtpx:cad')[0] ?? pt.getElementsByTagName('cad')[0]
-
-        points.push({
-          lat,
-          lon,
-          elevation,
-          timestamp,
-          heartRate: hrEl ? parseInt(hrEl.textContent ?? '0', 10) : undefined,
-          cadence: cadEl ? parseInt(cadEl.textContent ?? '0', 10) : undefined,
-        })
+        points.push({ lat, lon, elevation, timestamp })
       }
 
       activities.push({ name, sourceFormat: 'gpx', points })
