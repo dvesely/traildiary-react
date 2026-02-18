@@ -22,5 +22,11 @@ export function useTrails() {
     return () => { cancelled = true }
   }, [db])
 
-  return { trails, loading }
+  async function deleteTrail(id: string) {
+    const repos = createRepositories(db)
+    await repos.trails.deleteTrail(id)
+    setTrails((prev) => prev.filter((t) => t.id !== id))
+  }
+
+  return { trails, loading, deleteTrail }
 }

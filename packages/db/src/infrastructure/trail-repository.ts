@@ -29,6 +29,10 @@ export class PgliteTrailRepository implements TrailRepository {
     return result.rows
   }
 
+  async deleteTrail(id: string): Promise<void> {
+    await this.db.query('DELETE FROM trails WHERE id = $1', [id])
+  }
+
   async listTrailSummaries(): Promise<TrailSummaryDto[]> {
     const result = await this.db.query<{
       id: string

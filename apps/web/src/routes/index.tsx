@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useTrails } from '../application/hooks/use-trails.js'
 
@@ -6,7 +7,18 @@ export const Route = createFileRoute('/')({
 })
 
 function HomePage() {
-  const { trails, loading } = useTrails()
+  const { trails, loading, deleteTrail } = useTrails()
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+
+  function handleDeleteClick(e: React.MouseEvent, id: string) {
+    e.preventDefault()
+    if (confirmId === id) {
+      deleteTrail(id)
+      setConfirmId(null)
+    } else {
+      setConfirmId(id)
+    }
+  }
 
   return (
     <div className="h-full overflow-y-auto">
@@ -40,11 +52,11 @@ function HomePage() {
         {!loading && trails.length > 0 && (
           <ul className="flex flex-col gap-3">
             {trails.map((trail) => (
-              <li key={trail.id}>
+              <li key={trail.id} className="flex items-stretch gap-2">
                 <Link
                   to="/trail/$trailId"
                   params={{ trailId: trail.id }}
-                  className="block bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-xl px-5 py-4 transition-colors"
+                  className="flex-1 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-xl px-5 py-4 transition-colors"
                 >
                   <div className="flex items-baseline justify-between gap-4">
                     <span className="font-medium text-gray-100 truncate">{trail.name}</span>
@@ -62,6 +74,15 @@ function HomePage() {
                     </p>
                   )}
                 </Link>
+                <button
+                  onClick={(e) => handleDeleteClick(e, trail.id)}
+                  onBlur={() => setConfirmId(null)}
+                  className={confirmId === trail.id
+                    ? 'px-3 py-2 bg-red-600 hover:bg-red-500 rounded-xl text-sm font-medium transition-colors shrink-0'
+                    : 'px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl text-sm text-gray-400 hover:text-red-400 transition-colors shrink-0'}
+                >
+                  {confirmId === trail.id ? 'Sure?' : 'Delete'}
+                </button>
               </li>
             ))}
           </ul>

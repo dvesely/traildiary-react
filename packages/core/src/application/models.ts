@@ -19,3 +19,11 @@ export interface ActivityDto {
   stats: TrackStats
   sortOrder: number
 }
+
+export interface TrailSummaryDto {
+  id: string
+  name: string
+  totalDistance: number
+  startAt: number | null
+  endAt: number | null
+}

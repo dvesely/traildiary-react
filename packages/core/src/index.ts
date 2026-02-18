@@ -8,7 +8,7 @@ export { simplifyTrack } from './domain/track-simplifier.js'
 export { downsampleForChart } from './domain/track-downsampler.js'
 
 // Application
-export type { FileParser, ParsedActivity, TrailDto, TrailDayDto, ActivityDto, TrailRepository, TrailDayRepository, ActivityRepository, TrackpointRepository } from './application/ports.js'
+export type { FileParser, ParsedActivity, TrailDto, TrailDayDto, ActivityDto, TrailSummaryDto, TrailRepository, TrailDayRepository, ActivityRepository, TrackpointRepository } from './application/ports.js'
 
 // Infrastructure
 export { GpxParser } from './infrastructure/gpx-parser.js'
