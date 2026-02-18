@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm test:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm install:*)",
+      "Bash(timeout 15 pnpm:*)",
+      "Bash(timeout 12 pnpm:*)",
+      "Bash(timeout 10 pnpm:*)",
+      "Bash(pnpm ls:*)",
+      "Bash(pnpm --filter @traildiary/db add:*)",
+      "Bash(pnpm --filter @traildiary/web add:*)"
+    ]
+  }
+}
