@@ -8,7 +8,7 @@ export class FitParser implements FileParser {
   }
 
   async parse(data: ArrayBuffer, fileName: string): Promise<ParsedActivity[]> {
-    const parser = new FitFileParser({ speedUnit: 'km/h', lengthUnit: 'km' })
+    const parser = new FitFileParser({ speedUnit: 'km/h', lengthUnit: 'm' })
 
     const fitData = await new Promise<Record<string, unknown>>((resolve, reject) => {
       parser.parse(data as unknown as Buffer, (error: unknown, data: Record<string, unknown>) => {
