@@ -9,17 +9,19 @@ interface ElevationChartProps {
 interface ChartDataPoint {
   distance: number
   elevation: number
+  lat: number
+  lon: number
 }
 
 function buildChartData(points: TrackPoint[]): ChartDataPoint[] {
   if (points.length === 0) return []
 
   let cumDistance = 0
-  const data: ChartDataPoint[] = [{ distance: 0, elevation: points[0].elevation }]
+  const data: ChartDataPoint[] = [{ distance: 0, elevation: points[0].elevation, lat: points[0].lat, lon: points[0].lon }]
 
   for (let i = 1; i < points.length; i++) {
     cumDistance += haversineDistance(points[i - 1], points[i])
-    data.push({ distance: Math.round(cumDistance * 10) / 10, elevation: Math.round(points[i].elevation) })
+    data.push({ distance: Math.round(cumDistance * 10) / 10, elevation: Math.round(points[i].elevation), lat: points[i].lat, lon: points[i].lon })
   }
 
   return data
