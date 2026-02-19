@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
 import type { TrailDayView } from '../../application/hooks/use-trail.js'
-import type { TrackPoint } from '@traildiary/core'
+import { findNearestPoint, type TrackPoint } from '@traildiary/core'
 
 interface MapViewProps {
   days: TrailDayView[]
   selectedDayId: string | null
   hoveredPoint?: TrackPoint | null
+  chartPoints?: TrackPoint[]
+  onHoverPoint?: (point: TrackPoint | null) => void
 }
 
 const DAY_COLORS = [
@@ -14,9 +16,15 @@ const DAY_COLORS = [
   '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6',
 ]
 
-export function MapView({ days, selectedDayId, hoveredPoint }: MapViewProps) {
+export function MapView({ days, selectedDayId, hoveredPoint, chartPoints, onHoverPoint }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
+
+  const chartPointsRef = useRef<TrackPoint[]>(chartPoints ?? [])
+  const onHoverPointRef = useRef(onHoverPoint)
+
+  useEffect(() => { chartPointsRef.current = chartPoints ?? [] }, [chartPoints])
+  useEffect(() => { onHoverPointRef.current = onHoverPoint }, [onHoverPoint])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -45,6 +53,17 @@ export function MapView({ days, selectedDayId, hoveredPoint }: MapViewProps) {
           'circle-stroke-color': '#3b82f6',
           'circle-stroke-width': 2,
         },
+      })
+
+      map.on('mousemove', (e) => {
+        const pts = chartPointsRef.current
+        if (pts.length === 0) return
+        const nearest = findNearestPoint(pts, e.lngLat.lat, e.lngLat.lng)
+        onHoverPointRef.current?.(nearest)
+      })
+
+      map.on('mouseleave', () => {
+        onHoverPointRef.current?.(null)
       })
     })
 
