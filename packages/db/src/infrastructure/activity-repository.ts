@@ -73,4 +73,18 @@ export class PgliteActivityRepository implements ActivityRepository {
       sortOrder: r.sort_order,
     }))
   }
-}
+
+  async deleteActivity(id: string): Promise<void> {
+    // Get the trail_day_id before deletion to recalculate indices
+    const result = await this.db.query<{ trail_day_id: string }>(
+      'SELECT trail_day_id FROM activities WHERE id = $1',
+      [id]
+    )
+    const trailDayId = result.rows[0]?.trail_day_id
+
+    // Delete the activity (trackpoints cascade delete)
+    await this.db.query('DELETE FROM activities WHERE id = $1', [id])
+
+    // Note: recalculatePointIndices should be called by the caller if needed
+    // to avoid redundant recalculation when deleting multiple activities
+  }}

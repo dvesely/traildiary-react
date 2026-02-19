@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS trackpoints (
   timestamp TIMESTAMPTZ,
   heart_rate SMALLINT,
   cadence SMALLINT,
-  point_index INTEGER NOT NULL
+  point_index INTEGER NOT NULL,
+  distance_from_start_m REAL NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_trackpoints_activity ON trackpoints(activity_id);

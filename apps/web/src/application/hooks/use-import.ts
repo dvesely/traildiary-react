@@ -56,7 +56,7 @@ export function useImport() {
         const activityId = await repos.activities.createActivity(
           dayId, activity.name, activity.sourceFormat, stats, j + 1
         )
-        await repos.trackpoints.insertTrackpoints(activityId, activity.points)
+        await repos.trackpoints.insertTrackpoints(activityId, dayId, activity.points)
       }
     }
 

@@ -3,4 +3,6 @@ export interface TrackPoint {
   lon: number
   elevation: number
   timestamp: number
+  index: number
+  distance: number
 }

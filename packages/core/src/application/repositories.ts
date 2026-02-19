@@ -20,10 +20,12 @@ export interface TrailDayRepository {
 export interface ActivityRepository {
   createActivity(trailDayId: string, name: string, sourceFormat: SourceFormat, stats: TrackStats, sortOrder: number): Promise<string>
   getActivities(trailDayId: string): Promise<ActivityDto[]>
+  deleteActivity(id: string): Promise<void>
 }
 
 export interface TrackpointRepository {
-  insertTrackpoints(activityId: string, points: TrackPoint[]): Promise<void>
+  insertTrackpoints(activityId: string, trailDayId: string, points: TrackPoint[]): Promise<void>
   getTrackpoints(activityId: string): Promise<TrackPoint[]>
   getTrackpointsSampled(activityId: string, sampleRate: number): Promise<TrackPoint[]>
+  recalculatePointIndices(trailDayId: string, afterActivityId: string): Promise<void>
 }
