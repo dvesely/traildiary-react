@@ -4,6 +4,7 @@ import { haversineDistance, type TrackPoint } from '@traildiary/core'
 interface ElevationChartProps {
   points: TrackPoint[]
   height?: number
+  onHoverPoint?: (point: TrackPoint | null) => void
 }
 
 interface ChartDataPoint {
@@ -27,7 +28,7 @@ function buildChartData(points: TrackPoint[]): ChartDataPoint[] {
   return data
 }
 
-export function ElevationChart({ points, height = 176 }: ElevationChartProps) {
+export function ElevationChart({ points, height = 176, onHoverPoint }: ElevationChartProps) {
   const data = buildChartData(points)
 
   if (data.length === 0) {
@@ -36,7 +37,19 @@ export function ElevationChart({ points, height = 176 }: ElevationChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 10 }}>
+      <AreaChart
+          data={data}
+          margin={{ top: 5, right: 20, bottom: 5, left: 10 }}
+          onMouseMove={(e) => {
+            if (!onHoverPoint) return
+            const idx = e.activeTooltipIndex
+            if (typeof idx === 'number' && data[idx]) {
+              const d = data[idx]
+              onHoverPoint({ lat: d.lat, lon: d.lon, elevation: d.elevation, timestamp: 0 })
+            }
+          }}
+          onMouseLeave={() => onHoverPoint?.(null)}
+        >
         <defs>
           <linearGradient id="elevGradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
