@@ -1,4 +1,4 @@
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceDot } from 'recharts'
 import { haversineDistance, findNearestPoint, type TrackPoint } from '@traildiary/core'
 
 interface ElevationChartProps {
@@ -33,11 +33,15 @@ export function ElevationChart({ points, height = 176, hoveredPoint, onHoverPoin
   const data = buildChartData(points)
 
   let hoveredDistance: number | undefined
+  let hoveredIdx: number | undefined
   if (hoveredPoint && data.length > 0) {
     const nearest = findNearestPoint(points, hoveredPoint.lat, hoveredPoint.lon)
     if (nearest) {
       const idx = points.indexOf(nearest)
-      if (idx !== -1 && data[idx]) hoveredDistance = data[idx].distance
+      if (idx !== -1 && data[idx]) {
+        hoveredIdx = idx
+        hoveredDistance = data[idx].distance
+      }
     }
   }
 
@@ -68,6 +72,7 @@ export function ElevationChart({ points, height = 176, hoveredPoint, onHoverPoin
         </defs>
         <XAxis
           dataKey="distance"
+          type="number"
           stroke="#6b7280"
           fontSize={12}
           tickFormatter={(v) => `${v} km`}
@@ -90,13 +95,28 @@ export function ElevationChart({ points, height = 176, hoveredPoint, onHoverPoin
           strokeWidth={2}
         />
         {hoveredDistance !== undefined && (
-          <ReferenceLine
-            x={hoveredDistance}
-            stroke="#ffffff"
-            strokeWidth={1}
-            strokeDasharray="3 3"
-          />
-        )}
+              <>
+                <ReferenceLine
+                  key={`rl-${hoveredDistance}`}
+                  x={hoveredDistance}
+                  // stroke="#ff0000"
+                  strokeWidth={2}
+                  strokeDasharray="3 3"
+                  label={`${hoveredDistance} km`}
+                />
+                {hoveredIdx !== undefined && data[hoveredIdx] && (
+                  <ReferenceDot
+                    key={`rd-${hoveredDistance}-${hoveredIdx}`}
+                    x={hoveredDistance}
+                    y={data[hoveredIdx].elevation}
+                    r={4}
+                    // fill="#ff0000"
+                    stroke="#ffffff"
+                    strokeWidth={1}
+                  />
+                )}
+              </>
+            )}
       </AreaChart>
     </ResponsiveContainer>
   )
