@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import type { TrackPoint } from '@traildiary/core'
 import { useTrail } from '../application/hooks/use-trail.js'
 import { useAddActivity } from '../application/hooks/use-add-activity.js'
 import { useElevationData } from '../application/hooks/use-activity.js'
@@ -20,6 +21,7 @@ function TrailPage() {
   const { removeDay } = useRemoveDay()
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null)
   const { chartPoints } = useElevationData(trail, selectedDayId)
+  const [hoveredPoint, setHoveredPoint] = useState<TrackPoint | null>(null)
 
   async function handleAddFiles(files: File[]) {
     await addFiles(files)
@@ -48,10 +50,21 @@ function TrailPage() {
       <DaySidebar trail={trail} selectedDayId={selectedDayId} onSelectDay={setSelectedDayId} onAddFiles={handleAddFiles} onRemoveDay={handleRemoveDay} />
       <div className="flex-1 flex flex-col">
         <div className="flex-1">
-          <MapView days={trail.days} selectedDayId={selectedDayId} />
+          <MapView
+            days={trail.days}
+            selectedDayId={selectedDayId}
+            hoveredPoint={hoveredPoint}
+            chartPoints={chartPoints}
+            onHoverPoint={setHoveredPoint}
+          />
         </div>
         <div className="border-t border-gray-800 p-2">
-          <ElevationChart points={chartPoints} height={176} />
+          <ElevationChart
+            points={chartPoints}
+            height={176}
+            hoveredPoint={hoveredPoint}
+            onHoverPoint={setHoveredPoint}
+          />
         </div>
         <div className="border-t border-gray-800">
           <StatsPanel stats={currentStats} label={currentLabel} />
