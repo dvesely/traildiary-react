@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
 import type { TrailDayView } from '../../application/hooks/use-trail.js'
+import type { TrackPoint } from '@traildiary/core'
 
 interface MapViewProps {
   days: TrailDayView[]
   selectedDayId: string | null
+  hoveredPoint?: TrackPoint | null
 }
 
 const DAY_COLORS = [
@@ -12,7 +14,7 @@ const DAY_COLORS = [
   '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6',
 ]
 
-export function MapView({ days, selectedDayId }: MapViewProps) {
+export function MapView({ days, selectedDayId, hoveredPoint }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
@@ -27,6 +29,25 @@ export function MapView({ days, selectedDayId }: MapViewProps) {
     })
 
     map.addControl(new maplibregl.NavigationControl())
+
+    map.on('load', () => {
+      map.addSource('hover-point', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      })
+      map.addLayer({
+        id: 'hover-point-circle',
+        type: 'circle',
+        source: 'hover-point',
+        paint: {
+          'circle-radius': 6,
+          'circle-color': '#ffffff',
+          'circle-stroke-color': '#3b82f6',
+          'circle-stroke-width': 2,
+        },
+      })
+    })
+
     mapRef.current = map
 
     return () => map.remove()
@@ -91,6 +112,24 @@ export function MapView({ days, selectedDayId }: MapViewProps) {
       map.on('load', addLayers)
     }
   }, [days, selectedDayId])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !map.isStyleLoaded()) return
+
+    const source = map.getSource('hover-point') as maplibregl.GeoJSONSource | undefined
+    if (!source) return
+
+    if (hoveredPoint) {
+      source.setData({
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'Point', coordinates: [hoveredPoint.lon, hoveredPoint.lat] },
+      })
+    } else {
+      source.setData({ type: 'FeatureCollection', features: [] })
+    }
+  }, [hoveredPoint])
 
   return <div ref={containerRef} className="w-full h-full" />
 }
