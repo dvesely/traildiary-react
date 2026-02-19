@@ -6,6 +6,7 @@ export { haversineDistance, computeStats, aggregateStats } from './domain/track-
 export { validateActivityTimestamps } from './domain/activity-validator.js'
 export { simplifyTrack } from './domain/track-simplifier.js'
 export { downsampleForChart } from './domain/track-downsampler.js'
+export { findNearestPoint } from './domain/find-nearest-point.js'
 
 // Application
 export type { FileParser, ParsedActivity, TrailDto, TrailDayDto, ActivityDto, TrailSummaryDto, TrailRepository, TrailDayRepository, ActivityRepository, TrackpointRepository } from './application/ports.js'
