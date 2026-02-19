@@ -1,9 +1,10 @@
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { haversineDistance, type TrackPoint } from '@traildiary/core'
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { haversineDistance, findNearestPoint, type TrackPoint } from '@traildiary/core'
 
 interface ElevationChartProps {
   points: TrackPoint[]
   height?: number
+  hoveredPoint?: TrackPoint | null
   onHoverPoint?: (point: TrackPoint | null) => void
 }
 
@@ -28,8 +29,17 @@ function buildChartData(points: TrackPoint[]): ChartDataPoint[] {
   return data
 }
 
-export function ElevationChart({ points, height = 176, onHoverPoint }: ElevationChartProps) {
+export function ElevationChart({ points, height = 176, hoveredPoint, onHoverPoint }: ElevationChartProps) {
   const data = buildChartData(points)
+
+  let hoveredDistance: number | undefined
+  if (hoveredPoint && data.length > 0) {
+    const nearest = findNearestPoint(points, hoveredPoint.lat, hoveredPoint.lon)
+    if (nearest) {
+      const idx = points.indexOf(nearest)
+      if (idx !== -1 && data[idx]) hoveredDistance = data[idx].distance
+    }
+  }
 
   if (data.length === 0) {
     return <div className="h-full flex items-center justify-center text-gray-500">No elevation data</div>
@@ -79,6 +89,14 @@ export function ElevationChart({ points, height = 176, onHoverPoint }: Elevation
           fill="url(#elevGradient)"
           strokeWidth={2}
         />
+        {hoveredDistance !== undefined && (
+          <ReferenceLine
+            x={hoveredDistance}
+            stroke="#ffffff"
+            strokeWidth={1}
+            strokeDasharray="3 3"
+          />
+        )}
       </AreaChart>
     </ResponsiveContainer>
   )
