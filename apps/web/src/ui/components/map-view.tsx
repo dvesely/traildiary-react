@@ -101,6 +101,11 @@ export function MapView({ days, selectedDayId, hoveredPoint }: MapViewProps) {
         }
       })
 
+      // Ensure hover dot renders on top of all trail lines
+      if (map!.getLayer('hover-point-circle')) {
+        map!.moveLayer('hover-point-circle')
+      }
+
       if (!bounds.isEmpty()) {
         map!.fitBounds(bounds, { padding: 50 })
       }
