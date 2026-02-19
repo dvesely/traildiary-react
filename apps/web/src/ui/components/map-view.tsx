@@ -22,6 +22,7 @@ export function MapView({ days, selectedDayId, hoveredPoint, chartPoints, onHove
 
   const chartPointsRef = useRef<TrackPoint[]>(chartPoints ?? [])
   const onHoverPointRef = useRef(onHoverPoint)
+  const rafIdRef = useRef<number | null>(null)
 
   useEffect(() => { chartPointsRef.current = chartPoints ?? [] }, [chartPoints])
   useEffect(() => { onHoverPointRef.current = onHoverPoint }, [onHoverPoint])
@@ -58,11 +59,16 @@ export function MapView({ days, selectedDayId, hoveredPoint, chartPoints, onHove
       map.on('mousemove', (e) => {
         const pts = chartPointsRef.current
         if (pts.length === 0) return
-        const nearest = findNearestPoint(pts, e.lngLat.lat, e.lngLat.lng)
-        onHoverPointRef.current?.(nearest)
+        if (rafIdRef.current !== null) return
+        const { lat, lng } = e.lngLat
+        rafIdRef.current = requestAnimationFrame(() => {
+          rafIdRef.current = null
+          const nearest = findNearestPoint(pts, lat, lng)
+          onHoverPointRef.current?.(nearest)
+        })
       })
 
-      map.on('mouseleave', () => {
+      map.on('mouseout', () => {
         onHoverPointRef.current?.(null)
       })
     })

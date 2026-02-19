@@ -47,7 +47,10 @@ function TrailPage() {
 
   return (
     <div className="flex h-full">
-      <DaySidebar trail={trail} selectedDayId={selectedDayId} onSelectDay={setSelectedDayId} onAddFiles={handleAddFiles} onRemoveDay={handleRemoveDay} />
+      <DaySidebar trail={trail} selectedDayId={selectedDayId} onSelectDay={(dayId) => {
+          setSelectedDayId(dayId)
+          setHoveredPoint(null)
+        }} onAddFiles={handleAddFiles} onRemoveDay={handleRemoveDay} />
       <div className="flex-1 flex flex-col">
         <div className="flex-1">
           <MapView
