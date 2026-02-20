@@ -17,7 +17,8 @@
       "Bash(./node_modules/.bin/biome:*)",
       "Bash(node_modules/.bin/biome check:*)",
       "Bash(git checkout:*)",
-      "Bash(pnpm --filter @traildiary/core test)"
+      "Bash(pnpm --filter @traildiary/core test)",
+      "Bash(git rm:*)"
     ]
   }
 }
