@@ -44,7 +44,9 @@ function TrailPage() {
   const currentLabel = selectedDay ? selectedDay.name : 'Trail total'
 
   const visibleDays = selectedDay ? [selectedDay] : trail.days
-  const elevationPoints = visibleDays.flatMap((d) => d.activities.flatMap((a) => a.simplifiedPoints))
+  const elevationPoints = visibleDays
+    .flatMap((d) => d.activities.flatMap((a) => a.simplifiedPoints))
+    .map((p, i) => ({ ...p, index: i }))
 
   return (
     <div className="flex h-full">

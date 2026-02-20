@@ -82,7 +82,7 @@ export function ElevationChart({
         margin={{ top: 5, right: 20, bottom: 5, left: 10 }}
         onMouseMove={(e) => {
           if (!onHoverPoint) return
-          const idx = e.activeTooltipIndex
+          const idx = e.activeTooltipIndex as number
           if (idx == null) return
           onHoverPoint(points[idx] ?? null)
         }}
