@@ -8,7 +8,7 @@ import type { TrackPoint } from './trackpoint.js'
 function findClosestPointOnSegment(
   cursor: TrackPoint,
   pointA: TrackPoint,
-  pointB: TrackPoint
+  pointB: TrackPoint,
 ): { point: TrackPoint; distance: number } {
   // Convert lat/lon to radians
   const toRad = (deg: number) => (deg * Math.PI) / 180
@@ -51,24 +51,42 @@ function findClosestPointOnSegment(
   const closestLon = toDeg(lonC + closestX / cosLatMid)
 
   // Interpolate elevation
-  const closestElevation = pointA.elevation + (pointB.elevation - pointA.elevation) * t
-  const closestTimestamp = pointA.timestamp + (pointB.timestamp - pointA.timestamp) * t
+  const closestElevation =
+    pointA.elevation + (pointB.elevation - pointA.elevation) * t
+  const closestTimestamp =
+    pointA.timestamp + (pointB.timestamp - pointA.timestamp) * t
+
+  const closestDistance =
+    pointA.distance + (pointB.distance - pointA.distance) * t
 
   const point: TrackPoint = {
     lat: closestLat,
     lon: closestLon,
     elevation: closestElevation,
     timestamp: closestTimestamp,
+    distance: closestDistance,
+    index: pointB.distance < pointA.distance ? pointB.index : pointA.index,
   }
 
   const distance = Math.sqrt(closestX * closestX + closestY * closestY)
   return { point, distance }
 }
 
-export function findNearestPoint(points: TrackPoint[], lat: number, lon: number): TrackPoint | null {
+export function findNearestPoint(
+  points: TrackPoint[],
+  lat: number,
+  lon: number,
+): TrackPoint | null {
   if (points.length === 0) return null
-  
-  const cursor: TrackPoint = { lat, lon, elevation: 0, timestamp: 0 }
+
+  const cursor: TrackPoint = {
+    lat,
+    lon,
+    elevation: 0,
+    timestamp: 0,
+    distance: 0,
+    index: 0, // FIXME: maybe use different struct?
+  }
   let nearest = points[0]
   let minDist = haversineDistance(cursor, nearest)
 
@@ -91,4 +109,32 @@ export function findNearestPoint(points: TrackPoint[], lat: number, lon: number)
   }
 
   return nearest
+}
+
+export function findPointByDistance(
+  // FIXME: return point on polygon not from dataset
+  data: TrackPoint[],
+  targetDistance: number,
+): TrackPoint {
+  let low = 0
+  let high = data.length - 1
+
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2)
+    if (data[mid].distance < targetDistance) {
+      low = mid + 1
+    } else {
+      high = mid
+    }
+  }
+
+  // Check if the previous neighbor is actually closer
+  if (
+    low > 0 &&
+    Math.abs(data[low - 1].distance - targetDistance) <
+      Math.abs(data[low].distance - targetDistance)
+  ) {
+    return data[low - 1]
+  }
+  return data[low]
 }
