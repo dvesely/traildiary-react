@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter @traildiary/web dev",
+    "mobile": "pnpm --filter @traildiary/mobile start",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "biome check .",
