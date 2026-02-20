@@ -1,4 +1,4 @@
-import { findNearestPoint, type TrackPoint } from '@traildiary/core'
+import { findNearestPoint, simplifyPointsForZoom, type TrackPoint } from '@traildiary/core'
 import maplibregl from 'maplibre-gl'
 import { useEffect, useRef } from 'react'
 import type { TrailDayView } from '../../application/hooks/use-trail.js'
@@ -24,6 +24,12 @@ const DAY_COLORS = [
   '#14b8a6',
 ]
 
+function getCoords(day: TrailDayView, zoom: number): [number, number][] {
+  return day.activities.flatMap((a) =>
+    simplifyPointsForZoom(a.simplifiedPoints, zoom).map((p) => [p.lon, p.lat] as [number, number]),
+  )
+}
+
 export function MapView({
   days,
   selectedDayId,
@@ -34,10 +40,14 @@ export function MapView({
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
+  const daysRef = useRef<TrailDayView[]>(days)
   const chartPointsRef = useRef<TrackPoint[]>(chartPoints ?? [])
   const onHoverPointRef = useRef(onHoverPoint)
   const rafIdRef = useRef<number | null>(null)
 
+  useEffect(() => {
+    daysRef.current = days
+  }, [days])
   useEffect(() => {
     chartPointsRef.current = chartPoints ?? []
   }, [chartPoints])
@@ -89,6 +99,21 @@ export function MapView({
       map.on('mouseout', () => {
         onHoverPointRef.current?.(null)
       })
+
+      map.on('zoomend', () => {
+        const zoom = map.getZoom()
+        for (const day of daysRef.current) {
+          const source = map.getSource(`day-${day.id}`) as maplibregl.GeoJSONSource | undefined
+          if (!source) continue
+          const coords = getCoords(day, zoom)
+          if (coords.length === 0) continue
+          source.setData({
+            type: 'Feature',
+            properties: {},
+            geometry: { type: 'LineString', coordinates: coords },
+          })
+        }
+      })
     })
 
     mapRef.current = map
@@ -102,15 +127,14 @@ export function MapView({
 
     function addLayers() {
       const bounds = new maplibregl.LngLatBounds()
+      const zoom = map!.getZoom()
 
       days.forEach((day, i) => {
         const sourceId = `day-${day.id}`
         const layerId = `day-line-${day.id}`
         const color = DAY_COLORS[i % DAY_COLORS.length]
 
-        const coords = day.activities.flatMap((a) =>
-          a.simplifiedPoints.map((p) => [p.lon, p.lat] as [number, number]),
-        )
+        const coords = getCoords(day, zoom)
 
         if (coords.length === 0) return
         coords.forEach((c) => bounds.extend(c))
@@ -173,7 +197,6 @@ export function MapView({
     if (!source) return
 
     if (hoveredPoint) {
-      console.log('map', hoveredPoint)
       source.setData({
         type: 'Feature',
         properties: {},

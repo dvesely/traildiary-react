@@ -5,6 +5,7 @@ export type { TrackStats } from './domain/track-stats.js'
 export { haversineDistance, computeStats, aggregateStats } from './domain/track-stats.js'
 export { validateActivityTimestamps } from './domain/activity-validator.js'
 export { simplifyTrack } from './domain/track-simplifier.js'
+export { toleranceForZoom, simplifyPointsForZoom } from './domain/zoom-simplifier.js'
 export { downsampleForChart } from './domain/track-downsampler.js'
 export { findNearestPoint } from './domain/find-nearest-point.js'
 
