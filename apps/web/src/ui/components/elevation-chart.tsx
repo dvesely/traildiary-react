@@ -60,19 +60,11 @@ export function ElevationChart({
   let hoveredDistance: number | undefined
   let hoveredIdx: number | undefined
   if (hoveredPoint && data.length > 0) {
-    let minDist = Infinity
-    let closest = 0
-    for (let i = 0; i < points.length; i++) {
-      const dLat = points[i].lat - hoveredPoint.lat
-      const dLon = points[i].lon - hoveredPoint.lon
-      const d = dLat * dLat + dLon * dLon
-      if (d < minDist) {
-        minDist = d
-        closest = i
-      }
+    const idx = hoveredPoint.index
+    if (data[idx]) {
+      hoveredIdx = idx
+      hoveredDistance = data[idx].distance
     }
-    hoveredIdx = closest
-    hoveredDistance = data[closest].distance
   }
 
   if (data.length === 0) {

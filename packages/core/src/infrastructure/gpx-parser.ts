@@ -1,5 +1,7 @@
-import type { TrackPoint } from '../domain/trackpoint.js'
 import type { FileParser, ParsedActivity } from '../application/ports.js'
+import { calcDistance } from '../domain/distance.js'
+import { latLngFromPoint } from '../domain/latlng.js'
+import type { TrackPoint } from '../domain/trackpoint.js'
 
 export class GpxParser implements FileParser {
   canParse(fileName: string): boolean {
@@ -27,17 +29,30 @@ export class GpxParser implements FileParser {
 
       const points: TrackPoint[] = []
       const trkpts = track.getElementsByTagName('trkpt')
+      if (!trkpts.length) {
+        continue
+      }
 
-      for (let i = 0; i < trkpts.length; i++) {
-        const pt = trkpts[i]
-        const lat = parseFloat(pt.getAttribute('lat') ?? '0')
-        const lon = parseFloat(pt.getAttribute('lon') ?? '0')
-        const eleEl = pt.getElementsByTagName('ele')[0]
-        const elevation = eleEl ? parseFloat(eleEl.textContent ?? '0') : 0
-        const timeEl = pt.getElementsByTagName('time')[0]
-        const timestamp = timeEl ? new Date(timeEl.textContent ?? '').getTime() : 0
+      let _prevPoint = parsePoint(trkpts[0])
+      let _prevDistance = 0
 
-        points.push({ lat, lon, elevation, timestamp })
+      points.push
+
+      for (let i = 1; i < trkpts.length; i++) {
+        const pt = parsePoint(trkpts[i])
+        const _distance = calcDistance(
+          latLngFromPoint(_prevPoint),
+          latLngFromPoint(pt),
+        )
+
+        points.push({
+          ...pt,
+          distance: _distance,
+          index: i,
+        })
+
+        _prevDistance += _distance
+        _prevPoint = pt
       }
 
       activities.push({ name, sourceFormat: 'gpx', points })
@@ -45,4 +60,15 @@ export class GpxParser implements FileParser {
 
     return activities
   }
+}
+
+function parsePoint(pt: Element) {
+  const lat = parseFloat(pt.getAttribute('lat') ?? '0')
+  const lon = parseFloat(pt.getAttribute('lon') ?? '0')
+  const eleEl = pt.getElementsByTagName('ele')[0]
+  const elevation = eleEl ? parseFloat(eleEl.textContent ?? '0') : 0
+  const timeEl = pt.getElementsByTagName('time')[0]
+  const timestamp = timeEl ? new Date(timeEl.textContent ?? '').getTime() : 0
+
+  return { lat, lon, elevation, timestamp }
 }

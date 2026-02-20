@@ -19,7 +19,7 @@ function perpendicularDistance(point: TrackPoint, lineStart: TrackPoint, lineEnd
 }
 
 export function simplifyTrack(points: TrackPoint[], tolerance: number): TrackPoint[] {
-  if (points.length <= 2) return points
+  if (points.length <= 2) return points.map((p, i) => ({ ...p, index: i }))
 
   let maxDist = 0
   let maxIdx = 0
@@ -32,11 +32,13 @@ export function simplifyTrack(points: TrackPoint[], tolerance: number): TrackPoi
     }
   }
 
-  if (maxDist > tolerance) {
-    const left = simplifyTrack(points.slice(0, maxIdx + 1), tolerance)
-    const right = simplifyTrack(points.slice(maxIdx), tolerance)
-    return [...left.slice(0, -1), ...right]
-  }
+  const result =
+    maxDist > tolerance
+      ? [
+          ...simplifyTrack(points.slice(0, maxIdx + 1), tolerance).slice(0, -1),
+          ...simplifyTrack(points.slice(maxIdx), tolerance),
+        ]
+      : [points[0], points[points.length - 1]]
 
-  return [points[0], points[points.length - 1]]
+  return result.map((p, i) => ({ ...p, index: i }))
 }

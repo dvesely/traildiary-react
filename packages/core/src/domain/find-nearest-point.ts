@@ -65,7 +65,7 @@ function findClosestPointOnSegment(
     elevation: closestElevation,
     timestamp: closestTimestamp,
     distance: closestDistance,
-    index: pointB.distance < pointA.distance ? pointB.index : pointA.index,
+    index: t < 0.5 ? pointA.index : pointB.index,
   }
 
   const distance = Math.sqrt(closestX * closestX + closestY * closestY)
