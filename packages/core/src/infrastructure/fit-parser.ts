@@ -7,7 +7,7 @@ export class FitParser implements FileParser {
     return fileName.toLowerCase().endsWith('.fit')
   }
 
-  async parse(data: ArrayBuffer, fileName: string): Promise<ParsedActivity[]> {
+  async *parse(data: ArrayBuffer, fileName: string): AsyncGenerator<ParsedActivity> {
     const parser = new FitFileParser({ speedUnit: 'km/h', lengthUnit: 'm' })
 
     const fitData = await new Promise<Record<string, unknown>>(
@@ -26,7 +26,7 @@ export class FitParser implements FileParser {
     const points: TrackPoint[] = []
 
     const records = (fitData.records as Array<Record<string, unknown>>) ?? []
-    let i = 0 // FIXME: should be calculate on trip
+    let i = 0
     for (const record of records) {
       if (record.position_lat == null || record.position_long == null) continue
       points.push({
@@ -41,6 +41,8 @@ export class FitParser implements FileParser {
       })
     }
 
-    return [{ name, sourceFormat: 'fit', points }]
+    if (points.length > 0) {
+      yield { name, sourceFormat: 'fit', points }
+    }
   }
 }

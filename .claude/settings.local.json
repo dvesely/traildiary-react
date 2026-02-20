@@ -12,7 +12,12 @@
       "Bash(timeout 10 pnpm:*)",
       "Bash(pnpm ls:*)",
       "Bash(pnpm --filter @traildiary/db add:*)",
-      "Bash(pnpm --filter @traildiary/web add:*)"
+      "Bash(pnpm --filter @traildiary/web add:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(./node_modules/.bin/biome:*)",
+      "Bash(node_modules/.bin/biome check:*)",
+      "Bash(git checkout:*)",
+      "Bash(pnpm --filter @traildiary/core test)"
     ]
   }
 }

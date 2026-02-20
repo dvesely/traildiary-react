@@ -9,7 +9,7 @@ export interface ParsedActivity {
 
 export interface FileParser {
   canParse(fileName: string): boolean
-  parse(data: ArrayBuffer, fileName: string): Promise<ParsedActivity[]>
+  parse(data: ArrayBuffer, fileName: string): AsyncGenerator<ParsedActivity>
 }
 
 export type { TrailDto, TrailDayDto, ActivityDto, TrailSummaryDto } from './models.js'

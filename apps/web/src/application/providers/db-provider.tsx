@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { PGlite } from '@electric-sql/pglite'
 import { getPgliteClient, runMigrations } from '@traildiary/db'
+import { RepositoryProvider } from '@traildiary/ui'
+import { createRepositories } from '../../infrastructure/di.js'
 
 interface DbContextValue {
   db: PGlite | null
@@ -33,5 +35,20 @@ export function DbProvider({ children, migrationSql }: { children: ReactNode; mi
     return () => { cancelled = true }
   }, [migrationSql])
 
-  return <DbContext.Provider value={state}>{children}</DbContext.Provider>
+  const repositories = useMemo(
+    () => state.db ? createRepositories(state.db) : null,
+    [state.db]
+  )
+
+  if (!state.isReady || !repositories) {
+    return <DbContext.Provider value={state}>{children}</DbContext.Provider>
+  }
+
+  return (
+    <DbContext.Provider value={state}>
+      <RepositoryProvider repositories={repositories}>
+        {children}
+      </RepositoryProvider>
+    </DbContext.Provider>
+  )
 }

@@ -1,74 +1,59 @@
+import { XMLParser } from 'fast-xml-parser'
 import type { FileParser, ParsedActivity } from '../application/ports.js'
 import { calcDistance } from '../domain/distance.js'
 import { latLngFromPoint } from '../domain/latlng.js'
 import type { TrackPoint } from '../domain/trackpoint.js'
+
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_',
+  isArray: (name) => ['trk', 'trkseg', 'trkpt'].includes(name),
+})
 
 export class GpxParser implements FileParser {
   canParse(fileName: string): boolean {
     return fileName.toLowerCase().endsWith('.gpx')
   }
 
-  async parse(data: ArrayBuffer, fileName: string): Promise<ParsedActivity[]> {
+  async *parse(data: ArrayBuffer, fileName: string): AsyncGenerator<ParsedActivity> {
     const text = new TextDecoder().decode(data)
-    // Use DOMParser in browser, jsdom in Node/tests
-    let doc: Document
-    if (typeof DOMParser !== 'undefined') {
-      doc = new DOMParser().parseFromString(text, 'application/xml')
-    } else {
-      const { JSDOM } = await import('jsdom')
-      doc = new JSDOM(text, { contentType: 'application/xml' }).window.document
-    }
+    const result = xmlParser.parse(text)
+    const tracks: unknown[] = result?.gpx?.trk ?? []
 
-    const tracks = doc.getElementsByTagName('trk')
-    const activities: ParsedActivity[] = []
+    for (const track of tracks as Record<string, unknown>[]) {
+      const name = (track.name as string | undefined) ?? fileName.replace(/\.gpx$/i, '')
+      const rawPoints: unknown[] = []
 
-    for (let t = 0; t < tracks.length; t++) {
-      const track = tracks[t]
-      const nameEl = track.getElementsByTagName('name')[0]
-      const name = nameEl?.textContent ?? fileName.replace(/\.gpx$/i, '')
+      const segs = track.trkseg as Record<string, unknown>[] | undefined
+      if (segs) {
+        for (const seg of segs) {
+          const pts = seg.trkpt as unknown[] | undefined
+          if (pts) rawPoints.push(...pts)
+        }
+      }
+
+      if (rawPoints.length === 0) continue
 
       const points: TrackPoint[] = []
-      const trkpts = track.getElementsByTagName('trkpt')
-      if (!trkpts.length) {
-        continue
+      let prevPoint = parseTrkpt(rawPoints[0] as Record<string, unknown>)
+      points.push({ ...prevPoint, distance: 0, index: 0 })
+
+      for (let i = 1; i < rawPoints.length; i++) {
+        const pt = parseTrkpt(rawPoints[i] as Record<string, unknown>)
+        const distance = calcDistance(latLngFromPoint(prevPoint), latLngFromPoint(pt))
+        points.push({ ...pt, distance, index: i })
+        prevPoint = pt
       }
 
-      let _prevPoint = parsePoint(trkpts[0])
-      let _prevDistance = 0
-
-      points.push
-
-      for (let i = 1; i < trkpts.length; i++) {
-        const pt = parsePoint(trkpts[i])
-        const _distance = calcDistance(
-          latLngFromPoint(_prevPoint),
-          latLngFromPoint(pt),
-        )
-
-        points.push({
-          ...pt,
-          distance: _distance,
-          index: i,
-        })
-
-        _prevDistance += _distance
-        _prevPoint = pt
-      }
-
-      activities.push({ name, sourceFormat: 'gpx', points })
+      yield { name, sourceFormat: 'gpx', points }
     }
-
-    return activities
   }
 }
 
-function parsePoint(pt: Element) {
-  const lat = parseFloat(pt.getAttribute('lat') ?? '0')
-  const lon = parseFloat(pt.getAttribute('lon') ?? '0')
-  const eleEl = pt.getElementsByTagName('ele')[0]
-  const elevation = eleEl ? parseFloat(eleEl.textContent ?? '0') : 0
-  const timeEl = pt.getElementsByTagName('time')[0]
-  const timestamp = timeEl ? new Date(timeEl.textContent ?? '').getTime() : 0
-
+function parseTrkpt(pt: Record<string, unknown>): Omit<TrackPoint, 'distance' | 'index'> {
+  const lat = parseFloat(String(pt['@_lat'] ?? '0'))
+  const lon = parseFloat(String(pt['@_lon'] ?? '0'))
+  const elevation = pt.ele !== undefined ? parseFloat(String(pt.ele)) : 0
+  const timestamp = pt.time ? new Date(String(pt.time)).getTime() : 0
   return { lat, lon, elevation, timestamp }
 }
