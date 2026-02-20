@@ -1,8 +1,4 @@
-import {
-  findNearestPoint,
-  haversineDistance,
-  type TrackPoint,
-} from '@traildiary/core'
+import { haversineDistance, type TrackPoint } from '@traildiary/core'
 import {
   Area,
   AreaChart,
@@ -64,14 +60,19 @@ export function ElevationChart({
   let hoveredDistance: number | undefined
   let hoveredIdx: number | undefined
   if (hoveredPoint && data.length > 0) {
-    const nearest = findNearestPoint(points, hoveredPoint.lat, hoveredPoint.lon)
-    if (nearest) {
-      const idx = points.indexOf(nearest)
-      if (idx !== -1 && data[idx]) {
-        hoveredIdx = idx
-        hoveredDistance = data[idx].distance
+    let minDist = Infinity
+    let closest = 0
+    for (let i = 0; i < points.length; i++) {
+      const dLat = points[i].lat - hoveredPoint.lat
+      const dLon = points[i].lon - hoveredPoint.lon
+      const d = dLat * dLat + dLon * dLon
+      if (d < minDist) {
+        minDist = d
+        closest = i
       }
     }
+    hoveredIdx = closest
+    hoveredDistance = data[closest].distance
   }
 
   if (data.length === 0) {

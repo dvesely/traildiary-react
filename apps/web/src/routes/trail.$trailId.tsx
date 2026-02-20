@@ -3,7 +3,6 @@ import { useState } from 'react'
 import type { TrackPoint } from '@traildiary/core'
 import { useTrail } from '../application/hooks/use-trail.js'
 import { useAddActivity } from '../application/hooks/use-add-activity.js'
-import { useElevationData } from '../application/hooks/use-activity.js'
 import { MapView } from '../ui/components/map-view.js'
 import { DaySidebar } from '../ui/components/day-sidebar.js'
 import { ElevationChart } from '../ui/components/elevation-chart.js'
@@ -20,7 +19,6 @@ function TrailPage() {
   const { addFiles } = useAddActivity(trailId)
   const { removeDay } = useRemoveDay()
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null)
-  const { chartPoints } = useElevationData(trail, selectedDayId)
   const [hoveredPoint, setHoveredPoint] = useState<TrackPoint | null>(null)
 
   async function handleAddFiles(files: File[]) {
@@ -30,7 +28,7 @@ function TrailPage() {
 
   async function handleRemoveDay(dayId: string) {
     await removeDay(dayId)
-    refresh() 
+    refresh()
   }
 
   if (loading || !trail) {
@@ -45,25 +43,34 @@ function TrailPage() {
   const currentStats = selectedDay ? selectedDay.stats : trail.stats
   const currentLabel = selectedDay ? selectedDay.name : 'Trail total'
 
+  const visibleDays = selectedDay ? [selectedDay] : trail.days
+  const elevationPoints = visibleDays.flatMap((d) => d.activities.flatMap((a) => a.simplifiedPoints))
+
   return (
     <div className="flex h-full">
-      <DaySidebar trail={trail} selectedDayId={selectedDayId} onSelectDay={(dayId) => {
+      <DaySidebar
+        trail={trail}
+        selectedDayId={selectedDayId}
+        onSelectDay={(dayId) => {
           setSelectedDayId(dayId)
           setHoveredPoint(null)
-        }} onAddFiles={handleAddFiles} onRemoveDay={handleRemoveDay} />
+        }}
+        onAddFiles={handleAddFiles}
+        onRemoveDay={handleRemoveDay}
+      />
       <div className="flex-1 flex flex-col">
         <div className="flex-1">
           <MapView
             days={trail.days}
             selectedDayId={selectedDayId}
             hoveredPoint={hoveredPoint}
-            chartPoints={chartPoints}
+            chartPoints={elevationPoints}
             onHoverPoint={setHoveredPoint}
           />
         </div>
         <div className="border-t border-gray-800 p-2">
           <ElevationChart
-            points={chartPoints}
+            points={elevationPoints}
             height={176}
             hoveredPoint={hoveredPoint}
             onHoverPoint={setHoveredPoint}
