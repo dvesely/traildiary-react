@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { logger } from '../src/infrastructure/logger'
+import { logger, useLogger } from '../src/infrastructure/logger'
 
 const parsers = [new GpxParser(logger), new FitParser(logger)]
 
@@ -24,14 +24,17 @@ async function readFileAsArrayBuffer(
   // GPX is text: read as UTF-8 string and encode natively — avoids the slow
   // base64 → atob() → char-by-char JS loop (O(n) on Hermes, ~3 s per MB).
   if (fileName.toLowerCase().endsWith('.gpx')) {
+    logger.trace('readFileAsArrayBuffer: gpx', fileName)
     const text = await FileSystem.readAsStringAsync(uri)
-    return new TextEncoder().encode(text).buffer as ArrayBuffer
+    return new TextEncoder().encode(text).buffer as ArrayBuffer // FIXME: not good
   }
   // Binary formats (FIT, etc.): must go through base64.
   // FIT files are compact, so the loop is fast enough.
+  logger.trace('readFileAsArrayBuffer: fit', fileName)
   const base64 = await FileSystem.readAsStringAsync(uri, {
     encoding: FileSystem.EncodingType.Base64,
   })
+  logger.trace('base64 done.')
   const binary = atob(base64)
   const buf = new ArrayBuffer(binary.length)
   const view = new Uint8Array(buf)
@@ -46,26 +49,31 @@ export default function ImportScreen() {
   const [selectedFiles, setSelectedFiles] = useState<
     { name: string; uri: string }[]
   >([])
-  const { importFiles, progress } = useImport(parsers)
+  const logger = useLogger()
+  const { importFiles, progress } = useImport(parsers, logger)
 
   async function pickFiles() {
+    logger.trace('picking files...')
     const result = await DocumentPicker.getDocumentAsync({
       multiple: true,
       type: '*/*',
     })
     if (!result.canceled) {
+      logger.debug('picked file(s) ', result.assets.length)
       setSelectedFiles(result.assets.map((a) => ({ name: a.name, uri: a.uri })))
     }
   }
 
   async function handleImport() {
     if (!trailName.trim() || selectedFiles.length === 0) return
+    logger.debug('Handle import started.')
     const filesData = await Promise.all(
       selectedFiles.map(async (f) => ({
         name: f.name,
         data: await readFileAsArrayBuffer(f.uri, f.name),
       })),
     )
+    logger.trace('Handle import done')
     const trailId = await importFiles(trailName.trim(), filesData)
     if (trailId) router.replace(`/trail/${trailId}`)
   }
