@@ -8,7 +8,15 @@ import { useImport } from '@traildiary/ui'
 
 const parsers = [new GpxParser(), new FitParser()]
 
-async function readFileAsArrayBuffer(uri: string): Promise<ArrayBuffer> {
+async function readFileAsArrayBuffer(uri: string, fileName: string): Promise<ArrayBuffer> {
+  // GPX is text: read as UTF-8 string and encode natively — avoids the slow
+  // base64 → atob() → char-by-char JS loop (O(n) on Hermes, ~3 s per MB).
+  if (fileName.toLowerCase().endsWith('.gpx')) {
+    const text = await FileSystem.readAsStringAsync(uri)
+    return new TextEncoder().encode(text).buffer as ArrayBuffer
+  }
+  // Binary formats (FIT, etc.): must go through base64.
+  // FIT files are compact, so the loop is fast enough.
   const base64 = await FileSystem.readAsStringAsync(uri, {
     encoding: FileSystem.EncodingType.Base64,
   })
@@ -38,7 +46,7 @@ export default function ImportScreen() {
     const filesData = await Promise.all(
       selectedFiles.map(async (f) => ({
         name: f.name,
-        data: await readFileAsArrayBuffer(f.uri),
+        data: await readFileAsArrayBuffer(f.uri, f.name),
       }))
     )
     const trailId = await importFiles(trailName.trim(), filesData)
