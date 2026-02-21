@@ -1,11 +1,19 @@
-import type { PGlite } from '@electric-sql/pglite'
-import { PgliteTrailRepository, PgliteTrailDayRepository, PgliteActivityRepository, PgliteTrackpointRepository } from '@traildiary/db'
+// apps/web/src/infrastructure/di.ts
 
-export function createRepositories(db: PGlite) {
+import {
+  SqliteActivityRepository,
+  type SqliteAdapter,
+  SqliteTrackpointRepository,
+  SqliteTrailDayRepository,
+  SqliteTrailRepository,
+} from '@traildiary/db'
+import type { Repositories } from '@traildiary/ui'
+
+export function createRepositories(adapter: SqliteAdapter): Repositories {
   return {
-    trails: new PgliteTrailRepository(db),
-    trailDays: new PgliteTrailDayRepository(db),
-    activities: new PgliteActivityRepository(db),
-    trackpoints: new PgliteTrackpointRepository(db),
+    trails: new SqliteTrailRepository(adapter),
+    trailDays: new SqliteTrailDayRepository(adapter),
+    activities: new SqliteActivityRepository(adapter),
+    trackpoints: new SqliteTrackpointRepository(adapter),
   }
 }

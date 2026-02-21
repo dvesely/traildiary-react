@@ -18,7 +18,26 @@
       "Bash(node_modules/.bin/biome check:*)",
       "Bash(git checkout:*)",
       "Bash(pnpm --filter @traildiary/core test)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(ls:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(pnpm approve-builds:*)",
+      "Bash(pnpm --filter @traildiary/db exec node:*)",
+      "Bash(test:*)",
+      "Bash(dir:*)",
+      "Bash(node -e:*)",
+      "Bash(pnpm --filter @traildiary/db test:*)",
+      "Bash(pnpm --filter @traildiary/web build:*)",
+      "Bash(pnpm build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite build)",
+      "Bash(pnpm run build:*)",
+      "Bash(cmd /c \"dir /s /b D:\\\\dev\\\\repos\\\\traildiary-react\\\\*IDBBatchAtomicVFS*\")",
+      "Bash(cmd /c \"dir /s /b D:\\\\dev\\\\repos\\\\traildiary-react\\\\*wa-sqlite*\")",
+      "Bash(cmd /c dir /s /b \"D:\\\\dev\\\\repos\\\\traildiary-react\")",
+      "Bash(pnpm --filter @traildiary/web ls:*)",
+      "Bash(pnpm store:*)",
+      "Bash(cmd /c dir /s /b \"D:\\\\.pnpm-store\\\\v10\\\\files\")"
     ]
   }
 }

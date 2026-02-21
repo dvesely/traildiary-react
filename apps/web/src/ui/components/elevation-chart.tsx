@@ -109,7 +109,7 @@ export function ElevationChart({
             borderRadius: '8px',
           }}
           labelFormatter={(v) => `${v} km`}
-          formatter={(v: number) => [`${v} m`, 'Elevation']}
+          formatter={(v: number | undefined) => [`${v ?? 0} m`, 'Elevation']}
         />
         <Area
           type="monotone"

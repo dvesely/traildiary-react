@@ -1,54 +1,58 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { PGlite } from '@electric-sql/pglite'
-import { getPgliteClient, runMigrations } from '@traildiary/db'
+// apps/web/src/application/providers/db-provider.tsx
+
+import type { SqliteAdapter } from '@traildiary/db'
+import { SCHEMA_SQL } from '@traildiary/db'
 import { RepositoryProvider } from '@traildiary/ui'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { createRepositories } from '../../infrastructure/di.js'
+import { createWaSqliteAdapter } from '../../infrastructure/wa-sqlite-adapter.js'
 
-interface DbContextValue {
-  db: PGlite | null
-  isReady: boolean
+interface State {
+  adapter: SqliteAdapter | null
+  error: string | null
 }
 
-const DbContext = createContext<DbContextValue>({ db: null, isReady: false })
-
-export function useDb() {
-  const ctx = useContext(DbContext)
-  if (!ctx.isReady) throw new Error('Database not ready')
-  return ctx.db!
-}
-
-export function useDbStatus() {
-  return useContext(DbContext)
-}
-
-export function DbProvider({ children, migrationSql }: { children: ReactNode; migrationSql: string }) {
-  const [state, setState] = useState<DbContextValue>({ db: null, isReady: false })
+export function DbProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<State>({ adapter: null, error: null })
 
   useEffect(() => {
     let cancelled = false
     async function init() {
-      const client = await getPgliteClient('idb://traildiary')
-      await runMigrations(client, migrationSql)
-      if (!cancelled) setState({ db: client, isReady: true })
+      try {
+        const adapter = await createWaSqliteAdapter()
+        // Wrap schema in one transaction → one journal created/deleted instead of one per DDL
+        await adapter.exec(`BEGIN;\n${SCHEMA_SQL}\nCOMMIT;`)
+        if (!cancelled) setState({ adapter, error: null })
+      } catch (e) {
+        if (!cancelled) setState({ adapter: null, error: String(e) })
+      }
     }
     init()
-    return () => { cancelled = true }
-  }, [migrationSql])
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const repositories = useMemo(
-    () => state.db ? createRepositories(state.db) : null,
-    [state.db]
+    () => (state.adapter ? createRepositories(state.adapter) : null),
+    [state.adapter],
   )
 
-  if (!state.isReady || !repositories) {
-    return <DbContext.Provider value={state}>{children}</DbContext.Provider>
+  if (state.error) {
+    return (
+      <div style={{ padding: 16, color: 'red' }}>
+        Database error: {state.error}
+      </div>
+    )
+  }
+
+  if (!repositories) {
+    return <div style={{ padding: 16 }}>Loading database…</div>
   }
 
   return (
-    <DbContext.Provider value={state}>
-      <RepositoryProvider repositories={repositories}>
-        {children}
-      </RepositoryProvider>
-    </DbContext.Provider>
+    <RepositoryProvider repositories={repositories}>
+      {children}
+    </RepositoryProvider>
   )
 }

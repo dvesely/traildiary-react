@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useState } from 'react'
 import { useTrails } from '../application/hooks/use-trails.js'
 
 export const Route = createFileRoute('/')({
@@ -33,9 +33,7 @@ function HomePage() {
           </Link>
         </div>
 
-        {loading && (
-          <p className="text-gray-400 text-sm">Loading…</p>
-        )}
+        {loading && <p className="text-gray-400 text-sm">Loading…</p>}
 
         {!loading && trails.length === 0 && (
           <div className="flex flex-col items-center gap-4 py-16 text-center">
@@ -59,7 +57,9 @@ function HomePage() {
                   className="flex-1 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-xl px-5 py-4 transition-colors"
                 >
                   <div className="flex items-baseline justify-between gap-4">
-                    <span className="font-medium text-gray-100 truncate">{trail.name}</span>
+                    <span className="font-medium text-gray-100 truncate">
+                      {trail.name}
+                    </span>
                     <span className="text-sm text-gray-400 shrink-0">
                       {trail.totalDistance > 0
                         ? `${trail.totalDistance.toFixed(1)} km`
@@ -69,7 +69,9 @@ function HomePage() {
                   {trail.startAt != null && (
                     <p className="mt-1 text-sm text-gray-500">
                       {new Date(trail.startAt).toLocaleDateString(undefined, {
-                        year: 'numeric', month: 'short', day: 'numeric',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
                       })}
                     </p>
                   )}
@@ -77,9 +79,11 @@ function HomePage() {
                 <button
                   onClick={(e) => handleDeleteClick(e, trail.id)}
                   onBlur={() => setConfirmId(null)}
-                  className={confirmId === trail.id
-                    ? 'px-3 py-2 bg-red-600 hover:bg-red-500 rounded-xl text-sm font-medium transition-colors shrink-0'
-                    : 'px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl text-sm text-gray-400 hover:text-red-400 transition-colors shrink-0'}
+                  className={
+                    confirmId === trail.id
+                      ? 'px-3 py-2 bg-red-600 hover:bg-red-500 rounded-xl text-sm font-medium transition-colors shrink-0'
+                      : 'px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl text-sm text-gray-400 hover:text-red-400 transition-colors shrink-0'
+                  }
                 >
                   {confirmId === trail.id ? 'Sure?' : 'Delete'}
                 </button>

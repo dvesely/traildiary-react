@@ -1,14 +1,21 @@
-import type { SQLiteDatabase } from 'expo-sqlite'
+// apps/mobile/src/infrastructure/di.ts
+
+import {
+  SqliteActivityRepository,
+  SqliteTrackpointRepository,
+  SqliteTrailDayRepository,
+  SqliteTrailRepository,
+} from '@traildiary/db'
 import type { Repositories } from '@traildiary/ui'
-import { SqliteTrailRepository } from './sqlite-trail-repository'
-import { SqliteTrailDayRepository, SqliteActivityRepository } from './sqlite-activity-repository'
-import { SqliteTrackpointRepository } from './sqlite-trackpoint-repository'
+import type { SQLiteDatabase } from 'expo-sqlite'
+import { ExpoSqliteAdapter } from './expo-sqlite-adapter'
 
 export function createMobileRepositories(db: SQLiteDatabase): Repositories {
+  const adapter = new ExpoSqliteAdapter(db)
   return {
-    trails: new SqliteTrailRepository(db),
-    trailDays: new SqliteTrailDayRepository(db),
-    activities: new SqliteActivityRepository(db),
-    trackpoints: new SqliteTrackpointRepository(db),
+    trails: new SqliteTrailRepository(adapter),
+    trailDays: new SqliteTrailDayRepository(adapter),
+    activities: new SqliteActivityRepository(adapter),
+    trackpoints: new SqliteTrackpointRepository(adapter),
   }
 }

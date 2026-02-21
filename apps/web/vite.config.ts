@@ -12,7 +12,7 @@ export default defineConfig({
     target: 'es2022',
   },
   optimizeDeps: {
-    exclude: ['@electric-sql/pglite'],
+    exclude: ['wa-sqlite'],
     esbuildOptions: {
       target: 'es2022',
     },

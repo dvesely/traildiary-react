@@ -1,17 +1,38 @@
 // Domain
-export type { TrackPoint } from './domain/trackpoint.js'
-export type { Trail, TrailDay, Activity, SourceFormat } from './domain/trail.js'
-export type { TrackStats } from './domain/track-stats.js'
-export { haversineDistance, computeStats, aggregateStats } from './domain/track-stats.js'
-export { validateActivityTimestamps } from './domain/activity-validator.js'
-export { simplifyTrack } from './domain/track-simplifier.js'
-export { toleranceForZoom, simplifyPointsForZoom } from './domain/zoom-simplifier.js'
-export { downsampleForChart } from './domain/track-downsampler.js'
-export { findNearestPoint } from './domain/find-nearest-point.js'
 
 // Application
-export type { FileParser, ParsedActivity, Logger, LogLevel, LoggerOptions, TrailDto, TrailDayDto, ActivityDto, TrailSummaryDto, TrailRepository, TrailDayRepository, ActivityRepository, TrackpointRepository } from './application/ports.js'
-
+export type {
+  ActivityDto,
+  ActivityRepository,
+  FileParser,
+  Logger,
+  LoggerOptions,
+  LogLevel,
+  ParsedActivity,
+  TrackpointRepository,
+  TrailDayDto,
+  TrailDayRepository,
+  TrailDto,
+  TrailRepository,
+  TrailSummaryDto,
+} from './application/ports.js'
+export { validateActivityTimestamps } from './domain/activity-validator.js'
+export { findNearestPoint } from './domain/find-nearest-point.js'
+export { downsampleForChart } from './domain/track-downsampler.js'
+export { simplifyTrack } from './domain/track-simplifier.js'
+export type { TrackStats } from './domain/track-stats.js'
+export {
+  aggregateStats,
+  computeStats,
+  haversineDistance,
+} from './domain/track-stats.js'
+export type { TrackPoint } from './domain/trackpoint.js'
+export type { Activity, SourceFormat, Trail, TrailDay } from './domain/trail.js'
+export {
+  simplifyPointsForZoom,
+  toleranceForZoom,
+} from './domain/zoom-simplifier.js'
+export { FitParser } from './infrastructure/fit-parser.js'
 // Infrastructure
 export { GpxParser } from './infrastructure/gpx-parser.js'
-export { FitParser } from './infrastructure/fit-parser.js'
+export { sleep } from './utils/sleep.js'

@@ -4,3 +4,4 @@ packages:
 
 onlyBuiltDependencies:
   - '@shopify/react-native-skia'
+  - better-sqlite3

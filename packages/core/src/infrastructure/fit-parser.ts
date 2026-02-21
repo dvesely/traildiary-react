@@ -14,17 +14,7 @@ export class FitParser implements FileParser {
 
     const parser = new FitFileParser({ speedUnit: 'km/h', lengthUnit: 'm' })
 
-    const fitData = await new Promise<Record<string, unknown>>(
-      (resolve, reject) => {
-        parser.parse(
-          data as unknown as Buffer,
-          (error: unknown, data: Record<string, unknown>) => {
-            if (error) reject(error)
-            else resolve(data)
-          },
-        )
-      },
-    )
+    const fitData = await parser.parseAsync(data) as unknown as Record<string, unknown>
 
     const name = fileName.replace(/\.fit$/i, '')
     const points: TrackPoint[] = []
