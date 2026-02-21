@@ -1,14 +1,26 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView } from 'react-native'
-import { useState } from 'react'
-import { router } from 'expo-router'
+import { FitParser, GpxParser } from '@traildiary/core'
+import { useImport } from '@traildiary/ui'
 import * as DocumentPicker from 'expo-document-picker'
 import * as FileSystem from 'expo-file-system'
-import { GpxParser, FitParser } from '@traildiary/core'
-import { useImport } from '@traildiary/ui'
+import { router } from 'expo-router'
+import { useState } from 'react'
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
+import { logger } from '../src/infrastructure/logger'
 
-const parsers = [new GpxParser(), new FitParser()]
+const parsers = [new GpxParser(logger), new FitParser(logger)]
 
-async function readFileAsArrayBuffer(uri: string, fileName: string): Promise<ArrayBuffer> {
+async function readFileAsArrayBuffer(
+  uri: string,
+  fileName: string,
+): Promise<ArrayBuffer> {
   // GPX is text: read as UTF-8 string and encode natively — avoids the slow
   // base64 → atob() → char-by-char JS loop (O(n) on Hermes, ~3 s per MB).
   if (fileName.toLowerCase().endsWith('.gpx')) {
@@ -31,11 +43,16 @@ async function readFileAsArrayBuffer(uri: string, fileName: string): Promise<Arr
 
 export default function ImportScreen() {
   const [trailName, setTrailName] = useState('')
-  const [selectedFiles, setSelectedFiles] = useState<{ name: string; uri: string }[]>([])
+  const [selectedFiles, setSelectedFiles] = useState<
+    { name: string; uri: string }[]
+  >([])
   const { importFiles, progress } = useImport(parsers)
 
   async function pickFiles() {
-    const result = await DocumentPicker.getDocumentAsync({ multiple: true, type: '*/*' })
+    const result = await DocumentPicker.getDocumentAsync({
+      multiple: true,
+      type: '*/*',
+    })
     if (!result.canceled) {
       setSelectedFiles(result.assets.map((a) => ({ name: a.name, uri: a.uri })))
     }
@@ -47,16 +64,21 @@ export default function ImportScreen() {
       selectedFiles.map(async (f) => ({
         name: f.name,
         data: await readFileAsArrayBuffer(f.uri, f.name),
-      }))
+      })),
     )
     const trailId = await importFiles(trailName.trim(), filesData)
     if (trailId) router.replace(`/trail/${trailId}`)
   }
 
-  const isImporting = progress.status === 'parsing' || progress.status === 'saving'
+  const isImporting =
+    progress.status === 'parsing' || progress.status === 'saving'
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       <TextInput
         style={styles.input}
         placeholder="Trail name"
@@ -88,7 +110,11 @@ export default function ImportScreen() {
       )}
 
       <TouchableOpacity
-        style={[styles.importBtn, (!trailName.trim() || !selectedFiles.length || isImporting) && styles.disabled]}
+        style={[
+          styles.importBtn,
+          (!trailName.trim() || !selectedFiles.length || isImporting) &&
+            styles.disabled,
+        ]}
         onPress={handleImport}
         disabled={!trailName.trim() || !selectedFiles.length || isImporting}
       >
@@ -101,9 +127,26 @@ export default function ImportScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#111' },
   content: { padding: 16, gap: 12 },
-  input: { backgroundColor: '#1f2937', color: '#fff', padding: 14, borderRadius: 8, fontSize: 16 },
-  pickBtn: { backgroundColor: '#374151', padding: 14, borderRadius: 8, alignItems: 'center' },
-  importBtn: { backgroundColor: '#3b82f6', padding: 14, borderRadius: 8, alignItems: 'center', marginTop: 4 },
+  input: {
+    backgroundColor: '#1f2937',
+    color: '#fff',
+    padding: 14,
+    borderRadius: 8,
+    fontSize: 16,
+  },
+  pickBtn: {
+    backgroundColor: '#374151',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  importBtn: {
+    backgroundColor: '#3b82f6',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 4,
+  },
   disabled: { opacity: 0.4 },
   btnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
   fileName: { color: '#9ca3af', fontSize: 13, paddingHorizontal: 4 },
