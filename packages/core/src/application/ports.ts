@@ -26,5 +26,23 @@ export interface FileParser {
   parse(data: ArrayBuffer, fileName: string): AsyncGenerator<ParsedActivity>
 }
 
-export type { TrailDto, TrailDayDto, ActivityDto, TrailSummaryDto } from './models.js'
-export type { TrailRepository, TrailDayRepository, ActivityRepository, TrackpointRepository } from './repositories.js'
+export type EnvironmentType = 'development' | 'production' | 'staging' | 'test'
+
+export interface Environment {
+  isProduction(): boolean
+  isDevelopment(): boolean
+  get(): EnvironmentType
+}
+
+export type {
+  ActivityDto,
+  TrailDayDto,
+  TrailDto,
+  TrailSummaryDto,
+} from './models.js'
+export type {
+  ActivityRepository,
+  TrackpointRepository,
+  TrailDayRepository,
+  TrailRepository,
+} from './repositories.js'
