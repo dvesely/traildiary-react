@@ -97,6 +97,8 @@ export function ElevationChart({
         <XAxis
           dataKey="distance"
           type="number"
+          domain={[0, 'dataMax']}
+          padding={{ left: 0, right: 0 }}
           stroke="#6b7280"
           fontSize={12}
           tickFormatter={(v) => `${v} km`}
